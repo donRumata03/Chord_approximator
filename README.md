@@ -9,4 +9,4 @@ So, many tecniques had been used.
 For example, gaussian window smooths the graph and only peaks, which are heiger than the value of the smoothed function, can be percieved as peaks.
 
 Here`s an example of it`s work:
-![Alt text](relative/Figure_1.png?raw=true "Title")
+![Alt text](/Figure_1.png?raw=true "Title")
