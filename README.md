@@ -10,3 +10,4 @@ For example, gaussian window smooths the graph and only peaks, which are heiger 
 
 Here`s an example of it`s work:
 ![Alt text](/Figure_1.png?raw=true "Title")
+(Red points are the result)
