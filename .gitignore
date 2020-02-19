@@ -1,0 +1,9 @@
+
+*.iml
+*.xml
+*.pyc
+*.pyc
+__pycache__/cleaner.cpython-38.pyc
+__pycache__/fft_test.cpython-38.pyc
+__pycache__/graphic_smoother.cpython-38.pyc
+__pycache__/Peack_detector.cpython-38.pyc
