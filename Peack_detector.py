@@ -31,7 +31,7 @@ class peek_detect_params:
 def detect_peek_candidates(spectrum, percent_noise_edge = 0.001, percent_sigma = 0.005,
                            percent_frame_width = 1, edge_peek_k = 1.5,
                            very_little_neigh_value = None, neigh_value = None, debug = False):
-    log_clear_spectrum = delete_rubbish(spectrum, percent_noise_edge)
+    log_clear_spectrum, first_nonzero, last_nonzero  = delete_rubbish(spectrum, percent_noise_edge)
 
     log_res = []
     # smoothed = smooth_graph(clear_spectrum, 1, 1)
@@ -41,8 +41,16 @@ def detect_peek_candidates(spectrum, percent_noise_edge = 0.001, percent_sigma =
     for i in splitted:
         nonzeros.extend(i)
 
+    raw_smoothed = get_exponentated_graph_x(smooth_graph(spectrum[first_nonzero : last_nonzero], percent_sigma / 1000, percent_frame_width))
     log_nonzero_smoothed = smooth_graph_as_exp(nonzeros, percent_sigma, percent_frame_width)
     log_little_smoothed = smooth_graph_as_exp(nonzeros, percent_sigma * 2, percent_frame_width)
+
+    smoothing_area = count_graph_area(get_exponentated_graph_x(log_nonzero_smoothed))# sum([x[1] for x in get_exponentated_graph_x(log_nonzero_smoothed)]) / len(log_nonzero_smoothed)
+    raw_smoothed_area = count_graph_area(raw_smoothed)
+
+    div_factor = smoothing_area / raw_smoothed_area
+    normalized_raw_smoothed = [(x[0], x[1] * div_factor) for x in raw_smoothed]
+    print("Area:", smoothing_area, "Raw area:", raw_smoothed_area)
 
     corresponding_index = 0
 
@@ -53,9 +61,10 @@ def detect_peek_candidates(spectrum, percent_noise_edge = 0.001, percent_sigma =
             else:
                 break
 
-        if index != 0 and sample[1] > log_clear_spectrum[index - 1][1] \
-                and index != len(log_clear_spectrum) - 1 and sample[1] > log_clear_spectrum[index + 1][1] \
-                and sample[1] > log_nonzero_smoothed[corresponding_index][1] * edge_peek_k:
+        if index == len(log_clear_spectrum) - 1 or (index != 0 and sample[1] > log_clear_spectrum[index - 1][1]
+                and index != len(log_clear_spectrum) - 1 and sample[1] > log_clear_spectrum[index + 1][1]
+                and (sample[1] > log_nonzero_smoothed[corresponding_index][1] * edge_peek_k
+                     or sample[1] > normalized_raw_smoothed[index][1] * edge_peek_k)):
             log_res.append((index, sample[0], sample[1]))
 
     res, integral = filter_possible_peeks(spectrum, [(np.exp(s1), s2) for index, s1, s2 in log_res],
@@ -101,6 +110,7 @@ def detect_peek_candidates(spectrum, percent_noise_edge = 0.001, percent_sigma =
             plt.plot(this_splitted_xs, this_splitted_ys)
         """
 
+        plot_tuple_graph(normalized_raw_smoothed)
         plot_tuple_graph(nonzero_smoothed)
         plt.scatter(peeks_xs, peeks_ys, edgecolors="red")
         plt.scatter(i_peeks_xs, i_peeks_ys, edgecolors="red")
@@ -109,7 +119,8 @@ def detect_peek_candidates(spectrum, percent_noise_edge = 0.001, percent_sigma =
 
         plt.show()
 
-    return res
+
+    return integral
 
 
 test_samples = [
@@ -216,5 +227,5 @@ def detect_file_peaks(filename, sample_size, sample_start, params : peek_detect_
 
 if __name__ == "__main__":
     # detect_peaks("music/guitar_test.wav", 2**13, 74000, debug=True)
-    params = peek_detect_params(noise_edge=0.0005, sigma=0.3)
-    detect_file_peaks("music/guitar_test.wav", 2 ** 14, 0, params, debug=True)
+    params = peek_detect_params(noise_edge=0.005, sigma=0.3)
+    detect_file_peaks("Notes/Piano/A.wav", 2 ** 14, 0, params, debug=True)

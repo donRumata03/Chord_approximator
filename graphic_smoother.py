@@ -100,5 +100,15 @@ def test_smoothing():
     plt.plot(raw_xs, raw_ys)
     plt.show()
 
+
+def count_graph_area(graphic : list) -> float:
+    accum = 0
+    last : tuple
+    for index, point in enumerate(graphic):
+        dx = 0 if index == 0 else point[0] - last[0]
+        accum += (dx * (point[1] + last[1]) / 2) if index != 0 else (dx * point[1])
+        last = point
+    return accum
+
 if __name__ == "__main__":
     test_smoothing()

@@ -30,7 +30,7 @@ def delete_rubbish(spectrum, percent_edge = 0.001, logariphmate = True, to_cut =
                 break
 
 
-        return spectrum[first_index:last_index]
+        return spectrum[first_index:last_index], first_index, last_index
 
     return spectrum
 
