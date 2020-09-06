@@ -91,6 +91,23 @@ class Instrument:
 
         file.write("".join(for_file))
 
+    def play_chord_to_file(self, filename : str, duration = 2, chord = (0, 3, 7), base_freq = 440, fs = 48000):
+        samples = np.arange(duration * fs) / fs
+        signal = np.array([0. for _ in range(len(samples))])
+
+        half_tone_stuff = 2 ** (1 / 12)
+
+        for this_add in chord:
+            this_freq = base_freq * half_tone_stuff ** this_add
+            for f, amp in self.harmonics:
+                signal += amp * np.sin(2 * np.pi * f * this_freq * samples)
+
+        signal /= max(signal)
+        signal *= (2 ** 31 - 1)
+        signal = np.int32(signal)
+        print("Playing to:", filename)
+        wavfile.write(filename, fs, signal)
+
 
 def parse_folder(folder : str, destination : str, play_folder : str = None):
     music_format = ".wav"
@@ -102,7 +119,12 @@ def parse_folder(folder : str, destination : str, play_folder : str = None):
     print(f"Generating instrument for these {music_format} files:", wavs)
 
     for note_file in wavs:
-        this_instr = Instrument(music_file=folder + "/" + note_file, sample_width=2**14, start_sample=0)
+        try:
+            this_instr = Instrument(music_file=folder + "/" + note_file, sample_width=2**14, start_sample=0)
+        except Exception as e:
+            print("Cat`t parse file :", note_file)
+            print(e)
+            continue
         this_res_path = destination + note_file[:-len(music_format)] + ".instrument"
         this_instr.to_file(this_res_path)
         if play_folder is not None:
@@ -113,6 +135,7 @@ def make_guitar():
     g = Instrument(music_file="Notes/Piano/A.wav", sample_width=2**13, start_sample=0)
     g.to_file("test_guitar")
     g.play_to_file("guitar_play.wav")
+    g.play_chord_to_file("Music_res/Guitar_major_chord.wav")
 
 
 def get_folder_instruments_names(folder_name : str) -> list:
@@ -129,8 +152,9 @@ def get_folder_instruments(folder_name):
 def play_all_instruments(in_folder_name : str, output_folder : str):
     instrs = get_folder_instruments_names(in_folder_name)
     for inst in instrs:
-        real_instr = Instrument(instrument_file=in_folder_name + "\\" + inst)
-        real_instr.play_to_file(output_folder + "\\" + inst[:-len(".instrument")] + ".wav")
+        real_instr = Instrument(instrument_file=inst)
+        instr_raw_name = inst.split("\\")[-1]
+        real_instr.play_chord_to_file(output_folder + "\\" + instr_raw_name[:-len(".instrument")] + ".wav")
 
 def play_file_instrument(filename : str, out_file : str):
     instr = Instrument(music_file=filename, sample_width=2**14, start_sample=0)
@@ -140,7 +164,7 @@ def play_file_instrument(filename : str, out_file : str):
 
 
 if __name__ == '__main__':
-    # parse_folder("Notes/Piano", "Instruments/Piano")
+    # parse_folder("Notes/Guitar", "Instruments/Guitar")
     # make_guitar()
-    # play_all_instruments("Instruments\\", "Music_res\\")
-    play_file_instrument("Music_res/Piano_res.wav", "Music_res/piano_res_res.wav")
+    play_all_instruments("Instruments\\Guitar", "Music_res\\Guitar")
+    # play_file_instrument("Music_res/Piano_res.wav", "Music_res/piano_res_res.wav")
