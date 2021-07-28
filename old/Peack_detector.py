@@ -61,7 +61,7 @@ def detect_peek_candidates(spectrum, percent_noise_edge = 0.001, percent_sigma =
             else:
                 break
 
-        if index == len(log_clear_spectrum) - 1 or (index != 0 and sample[1] > log_clear_spectrum[index - 1][1]
+        if index == len(log_clear_spectrum) - 1 or  (index == 0 and sample[0] != 0) or (index != 0 and sample[1] > log_clear_spectrum[index - 1][1]
                 and index != len(log_clear_spectrum) - 1 and sample[1] > log_clear_spectrum[index + 1][1]
                 and (sample[1] > log_nonzero_smoothed[corresponding_index][1] * edge_peek_k
                      or sample[1] > normalized_raw_smoothed[index][1] * edge_peek_k)):

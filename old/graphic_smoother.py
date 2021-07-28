@@ -1,16 +1,18 @@
+# don't use freaking VS Code!!1!!!1!!
+
 import numpy as np
 from matplotlib import pyplot as plt
 import json
 
 def normal(x, sigma, mu):
-    return (np.exp(-(((x - mu) / sigma)**2)/2)) / (sigma * np.sqrt(2 * np.pi))
-
+    return (np.exp(-(((x - mu) / sigma)**2)/2)) / (sigma * np.sqrt(2 * np.pi)) # use spaces between mathematical operators (PEP)
+# you should use two blank lines between functions (PEP)
 def smooth_graph(data : list, percent_sigma : float = 0.5, percent_frame_size : float = 0.5):
     buff = [(0, 0) for _ in range(len(data))] # (Coeff, sum)
     frame_size = int(len(data) * percent_frame_size)
     sigma = percent_sigma * len(data)
     for index, (x, y) in enumerate(data):
-        if type(x) == type(1+0j):
+        if type(x) == type(1+0j):           # w h y
             x = x.real
         if type(y) == type(1 + 0j):
             y = y.real
@@ -29,16 +31,16 @@ def smooth_graph(data : list, percent_sigma : float = 0.5, percent_frame_size : 
 
     for index, (x, y) in enumerate(res):
         # print(index, res[index])
-        pass
+        pass            # w h y
 
-    print()
+    print()             # W H Y
     return res
 
 
 def get_logariphmated_graph_x(data : list):
     return [(np.log(s1), s2) for s1, s2 in data if s1 != 0]
 
-def get_exponentated_graph_x(data : list):
+def get_exponentated_graph_x(data : list):   # exponentated
     return [(np.exp(s1), s2) for s1, s2 in data]
 
 
@@ -57,7 +59,7 @@ def smooth_graph_as_exp(data : list, percent_sigma : float = 0.5, percent_frame_
 
 
 def smooth_graph_as_log(data : list, percent_sigma : float = 0.5, percent_frame_size : float = 0.5):
-    logged = get_logariphmated_graph_x(data)
+    logged = get_logariphmated_graph_x(data)            # name is too long
     return get_exponentated_graph_x(smooth_graph(logged, percent_sigma, percent_frame_size))
 
 def plot_tuple_graph(data : list):
@@ -80,7 +82,7 @@ def test_smoothing():
         (2, 0),
         (50, 1),
         (100, 7)
-    ]
+    ]               # why don't you use consts
 
     smoothed = smooth_graph(testing_smoothing, 1, 1)
     smoothed_xs = []
